@@ -43,8 +43,14 @@ fi
 echo "== artefact deploy/ → oci://$IMAGE-deploy:$TAG"
 WORK=$(mktemp -d -p out)
 cp -r deploy "$WORK/"
+# La base renomme déjà « app-image » en $IMAGE:dev : c'est ce nom qu'il faut remplacer.
 for o in "$WORK"/deploy/overlays/*/; do
-  (cd "$o" && kustomize edit set image "app-image=$IMAGE@$DIGEST")
+  (cd "$o" && kustomize edit set image "$IMAGE=$IMAGE@$DIGEST")
+  # Garde-fou : chaque niveau doit déployer l'image construite, par digest, et aucune autre.
+  rendered=$(kustomize build "$o" | sed -n "s#^ *image: \($IMAGE[@:].*\)#\1#p" | sort -u)
+  if [[ $rendered != "$IMAGE@$DIGEST" ]]; then
+    echo "image non remplacée dans $(basename "$o") : ${rendered:-aucune}"; exit 1
+  fi
 done
 flux push artifact "oci://$IMAGE-deploy:$TAG" \
   --path="$WORK/deploy" \
