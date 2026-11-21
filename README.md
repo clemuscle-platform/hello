@@ -1,4 +1,4 @@
-# _APP_NAME_
+# hello
 
 Application de la plateforme `clemuscle-platform`, créée depuis le modèle **app-template**.
 

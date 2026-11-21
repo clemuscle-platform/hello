@@ -9,6 +9,6 @@
   "packageRules": [
     { "matchUpdateTypes": ["patch", "minor", "digest", "pin", "pinDigest"], "automerge": true },
     { "matchUpdateTypes": ["major"], "automerge": false, "labels": ["renovate", "needs-human"] },
-    { "matchUpdateTypes": ["patch", "minor", "major"], "minimumReleaseAge": "3 days" }
+    { "matchUpdateTypes": ["patch", "minor", "major"], "minimumReleaseAge": "7 days" }
   ]
 }
