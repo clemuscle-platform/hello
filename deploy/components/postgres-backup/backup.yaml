@@ -1,0 +1,38 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: ${APP_NAME}-backup
+  labels:
+    app.kubernetes.io/name: ${APP_NAME}
+spec:
+  retentionPolicy: "30d"
+  configuration:
+    destinationPath: s3://${S3_BUCKET_PG}/${APP_NAMESPACE}
+    endpointURL: ${S3_ENDPOINT}
+    s3Credentials:
+      # Secret copié par la plateforme dans chaque namespace d'application.
+      accessKeyId: {name: platform-s3, key: AWS_ACCESS_KEY_ID}
+      secretAccessKey: {name: platform-s3, key: AWS_SECRET_ACCESS_KEY}
+      region: {name: platform-s3, key: AWS_DEFAULT_REGION}
+    wal:
+      compression: gzip
+      maxParallel: 2
+    data:
+      compression: gzip
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: ${APP_NAME}-daily
+  labels:
+    app.kubernetes.io/name: ${APP_NAME}
+spec:
+  # Format à 6 champs (secondes) : tous les jours à 02:30 UTC.
+  schedule: "0 30 2 * * *"
+  backupOwnerReference: self
+  immediate: true
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+  cluster:
+    name: ${APP_NAME}-pg

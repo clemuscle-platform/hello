@@ -1,0 +1,26 @@
+# Objectifs de service (modèle) : lus par le Job slo-sync de la plateforme, qui crée les alertes
+# OpenObserve correspondantes. Une alerte ouvre un ticket « incident » sur ce dépôt (alert-bridge).
+# Fenêtres : « rapide » (5 min, page) et « lente » (1 h, ticket) sur le budget d'erreur.
+apiVersion: platform.io/v1
+kind: ServiceLevelObjectives
+service: ${APP_NAME}
+tier: ${APP_TIER}
+objectives:
+  - name: disponibilite
+    description: Part des requêtes HTTP sans erreur serveur (5xx)
+    target: 99.5          # % sur 30 jours glissants (budget : ~3 h 36 min d'erreurs par mois)
+    indicator:
+      type: error-rate
+      good: 'http.response.status_code < 500'
+  - name: latence
+    description: Temps de réponse au 95e centile des requêtes HTTP (hors /healthz, /readyz)
+    target: 95            # % des requêtes sous le seuil
+    threshold_ms: 400
+    indicator:
+      type: latency
+      exclude_routes: ["/healthz", "/readyz"]
+alerting:
+  fast_burn: {window: 5m, burn_rate: 14.4}   # ~2 % du budget mensuel en 1 h
+  slow_burn: {window: 1h, burn_rate: 6}
+  # Pas d'alerte en préversion ; staging alerte sans ticket prioritaire.
+  tiers: [prod, staging]

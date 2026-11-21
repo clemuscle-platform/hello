@@ -1,0 +1,29 @@
+# CI de l'application : délègue au workflow réutilisable de la plateforme.
+# Secrets d'organisation requis : PLATFORM_CI_APP_ID, PLATFORM_CI_APP_PRIVATE_KEY (GitHub App platform-ci).
+name: ci
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, ready_for_review]
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  platform:
+    # Renovate remplace @main par un SHA figé.
+    uses: clemuscle-platform/infra/.github/workflows/app-ci.yml@main
+    with:
+      cluster-domain: localhost
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+      pull-requests: write
+    secrets:
+      PLATFORM_CI_APP_ID: ${{ secrets.PLATFORM_CI_APP_ID }}
+      PLATFORM_CI_APP_PRIVATE_KEY: ${{ secrets.PLATFORM_CI_APP_PRIVATE_KEY }}

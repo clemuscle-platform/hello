@@ -1,0 +1,16 @@
+# Staging : suit la branche main (artefact « main »), sauvegardes 7 jours.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+# BEGIN modules (géré par scripts/modules.py)
+components: []
+# END modules
+patches:
+  - target:
+      kind: ObjectStore
+      group: barmancloud.cnpg.io
+    patch: |
+      - op: replace
+        path: /spec/retentionPolicy
+        value: 7d

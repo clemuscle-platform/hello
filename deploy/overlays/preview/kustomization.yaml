@@ -1,0 +1,16 @@
+# Préversion d'une PR (label « preview ») : namespace app-<app>-pr-<n>, éphémère, sans sauvegarde.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+# BEGIN modules (géré par scripts/modules.py)
+components: []
+# END modules
+patches:
+  - target:
+      kind: Cluster
+      group: postgresql.cnpg.io
+    patch: |
+      - op: replace
+        path: /spec/storage/size
+        value: 1Gi

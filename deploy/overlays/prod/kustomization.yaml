@@ -1,0 +1,35 @@
+# Production : suit les étiquettes vX.Y.Z (artefact X.Y.Z), images par digest, 2 réplicas.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+  - pdb.yaml
+# BEGIN modules (géré par scripts/modules.py)
+components: []
+# END modules
+configMapGenerator:
+  - name: app-config
+    behavior: merge
+    literals:
+      - OTEL_TRACES_SAMPLER_ARG=0.2
+patches:
+  - target:
+      kind: Deployment
+      name: web
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 2
+  # La base de production n'est jamais supprimée par le prune de Flux (ADR-0009) ;
+  # la VAP platform-protect-prod-data bloque aussi toute suppression sans décision humaine.
+  - target:
+      kind: Cluster
+      group: postgresql.cnpg.io
+    patch: |
+      - op: add
+        path: /metadata/annotations
+        value:
+          kustomize.toolkit.fluxcd.io/prune: disabled
+      - op: replace
+        path: /spec/storage/size
+        value: 5Gi

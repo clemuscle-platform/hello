@@ -1,0 +1,123 @@
+# Charge principale : application web/API (ou site statique avec le composant « static »).
+# Variables ${...} : fournies par la Kustomization Flux de la plateforme (postBuild.substitute).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app.kubernetes.io/name: ${APP_NAME}
+    app.kubernetes.io/component: web
+    platform.io/app: ${APP_NAME}
+    platform.io/workload: "true"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxUnavailable: 0, maxSurge: 1}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ${APP_NAME}
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ${APP_NAME}
+        app.kubernetes.io/component: web
+        platform.io/app: ${APP_NAME}
+    spec:
+      serviceAccountName: ${APP_NAME}
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: app
+          image: app-image
+          ports:
+            - {name: http, containerPort: 8080}
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                # Secrets propres à l'application (SOPS), facultatifs : deploy/overlays/<niveau>/secrets/
+                name: app-secrets
+                optional: true
+          resources:
+            requests: {cpu: 50m, memory: 96Mi}
+            limits: {memory: 256Mi}
+          startupProbe:
+            httpGet: {path: /healthz, port: http}
+            periodSeconds: 2
+            failureThreshold: 30
+          livenessProbe:
+            httpGet: {path: /healthz, port: http}
+            periodSeconds: 20
+          readinessProbe:
+            httpGet: {path: /readyz, port: http}
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  labels:
+    app.kubernetes.io/name: ${APP_NAME}
+spec:
+  selector:
+    app.kubernetes.io/name: ${APP_NAME}
+    app.kubernetes.io/component: web
+  ports:
+    - {name: http, port: 80, targetPort: http}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web
+  labels:
+    app.kubernetes.io/name: ${APP_NAME}
+  annotations:
+    cert-manager.io/cluster-issuer: ${CLUSTER_ISSUER}
+    # Hetzner : enregistrement DNS proxied par Cloudflare (external-dns). Ignoré en local.
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts: ["${APP_HOST}"]
+      secretName: web-tls
+  rules:
+    - host: ${APP_HOST}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port: {name: http}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ${APP_NAME}
+  labels:
+    app.kubernetes.io/name: ${APP_NAME}
+automountServiceAccountToken: false
+imagePullSecrets:
+  - name: ghcr-auth

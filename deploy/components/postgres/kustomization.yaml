@@ -1,0 +1,51 @@
+# Module « postgres » : base CloudNativePG dédiée (une par niveau), migrations en initContainer.
+# Les identifiants sont créés par CNPG dans le Secret <app>-pg-app ; l'URI est injectée en DATABASE_URL.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - cluster.yaml
+patches:
+  # Toutes les charges de l'application reçoivent DATABASE_URL.
+  - target:
+      kind: Deployment
+      labelSelector: platform.io/workload=true
+    patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef: {name: "${APP_NAME}-pg-app", key: uri}
+  - target:
+      kind: CronJob
+      labelSelector: platform.io/workload=true
+    patch: |
+      - op: add
+        path: /spec/jobTemplate/spec/template/spec/containers/0/env
+        value:
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef: {name: "${APP_NAME}-pg-app", key: uri}
+  # Migrations avant le démarrage de la version (verrou PostgreSQL : sûr avec plusieurs réplicas).
+  - target:
+      kind: Deployment
+      name: web
+    patch: |
+      - op: add
+        path: /spec/template/spec/initContainers
+        value:
+          - name: migrate
+            image: app-image
+            command: ["python", "-m", "app.migrate"]
+            env:
+              - name: DATABASE_URL
+                valueFrom:
+                  secretKeyRef: {name: "${APP_NAME}-pg-app", key: uri}
+            resources:
+              requests: {cpu: 20m, memory: 64Mi}
+              limits: {memory: 128Mi}
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
