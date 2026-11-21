@@ -1,0 +1,8 @@
+# Module « api » : API JSON uniquement (pas de pages HTML).
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+configMapGenerator:
+  - name: app-config
+    behavior: merge
+    literals:
+      - APP_KIND=api

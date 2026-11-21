@@ -1,0 +1,22 @@
+# Module « email » : e-mails transactionnels par SMTP (fournisseur au choix : Brevo, Resend…).
+# Identifiants dans le Secret SOPS « email-smtp » de chaque niveau (deploy/overlays/<niveau>/secrets/).
+# Sortie réseau : déclarer egress: "smtp" (ou "https,smtp") dans infra/cluster/apps/<app>.yaml.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+  - target:
+      kind: Deployment
+      labelSelector: platform.io/workload=true
+    patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/envFrom/-
+        value:
+          secretRef: {name: email-smtp, optional: true}
+  - target:
+      kind: CronJob
+      labelSelector: platform.io/workload=true
+    patch: |
+      - op: add
+        path: /spec/jobTemplate/spec/template/spec/containers/0/envFrom/-
+        value:
+          secretRef: {name: email-smtp, optional: true}

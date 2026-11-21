@@ -1,0 +1,10 @@
+# Module « valkey » : cache et file de messages, en mémoire (aucune persistance : données jetables).
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - valkey.yaml
+configMapGenerator:
+  - name: app-config
+    behavior: merge
+    literals:
+      - VALKEY_URL=redis://valkey:6379/0

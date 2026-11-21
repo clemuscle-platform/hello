@@ -1,0 +1,23 @@
+# Module « static » : site statique (Dockerfile.static, nginx non privilégié, utilisateur 101).
+# La CI construit Dockerfile.static quand platform.yaml déclare kind: static.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+patches:
+  - target:
+      kind: Deployment
+      name: web
+    patch: |
+      - op: replace
+        path: /spec/template/spec/securityContext/runAsUser
+        value: 101
+      - op: replace
+        path: /spec/template/spec/securityContext/runAsGroup
+        value: 101
+      - op: replace
+        path: /spec/template/spec/securityContext/fsGroup
+        value: 101
+      - op: replace
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests: {cpu: 10m, memory: 16Mi}
+          limits: {memory: 64Mi}

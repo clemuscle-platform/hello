@@ -1,0 +1,36 @@
+# Base commune aux trois niveaux. Les modules (components) sont gérés par scripts/modules.py
+# à partir de platform.yaml : ne pas éditer la liste « components » à la main (contrôle CI).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - workload-web.yaml
+configMapGenerator:
+  - name: app-config
+    literals:
+      - APP_NAME=${APP_NAME}
+      - APP_TIER=${APP_TIER}
+      - APP_KIND=web
+      - OTEL_SERVICE_NAME=${APP_NAME}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=${OTEL_EXPORTER_OTLP_ENDPOINT}
+      - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment.name=${APP_TIER},service.namespace=${APP_NAMESPACE}
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true
+      - OTEL_PYTHON_EXCLUDED_URLS=healthz,readyz
+      - OTEL_TRACES_SAMPLER=parentbased_traceidratio
+      - OTEL_TRACES_SAMPLER_ARG=1.0
+  - name: slo
+    files:
+      - slo.yaml
+    options:
+      labels:
+        platform.io/slo: "true"
+images:
+  - name: app-image
+    newName: ghcr.io/clemuscle-platform/hello
+    newTag: dev
+# BEGIN modules (géré par scripts/modules.py)
+components: []
+# END modules

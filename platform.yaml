@@ -1,0 +1,12 @@
+# Déclaration de l'application pour la plateforme. Source de vérité des modules activés :
+# après modification, lancer « make modules » (met à jour deploy/), la CI vérifie la cohérence.
+name: hello
+# web : pages + API ; api : API JSON seule ; static : site statique (Dockerfile.static)
+kind: web
+modules:
+  postgres: false   # base CloudNativePG + sauvegardes (staging, prod)
+  valkey: false     # cache / file de messages en mémoire
+  worker: false     # processus de fond (requiert valkey)
+  cron: false       # tâches planifiées
+  s3: false         # stockage d'objets
+  email: false      # e-mails transactionnels (SMTP)

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Renovate de l'application : dépendances Python (uv), images de base, workflow réutilisable de la plateforme.",
+  "extends": ["config:recommended", ":semanticCommits", "helpers:pinGitHubActionDigests", "docker:pinDigests"],
+  "timezone": "Europe/Paris",
+  "labels": ["renovate"],
+  "platformAutomerge": true,
+  "lockFileMaintenance": { "enabled": true, "automerge": true },
+  "packageRules": [
+    { "matchUpdateTypes": ["patch", "minor", "digest", "pin", "pinDigest"], "automerge": true },
+    { "matchUpdateTypes": ["major"], "automerge": false, "labels": ["renovate", "needs-human"] },
+    { "matchUpdateTypes": ["patch", "minor", "major"], "minimumReleaseAge": "3 days" }
+  ]
+}

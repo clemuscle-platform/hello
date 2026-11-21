@@ -1,0 +1,41 @@
+[project]
+name = "hello"
+version = "0.1.0"
+description = "Application d'exemple de la plateforme (modèle app-template)"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+  "fastapi==0.163.1",
+  "uvicorn==0.54.0",
+  # Instrumentation OpenTelemetry (lancée par « opentelemetry-instrument »)
+  "opentelemetry-distro==0.66b2",
+  "opentelemetry-exporter-otlp-proto-http==1.45.2",
+  "opentelemetry-instrumentation-fastapi==0.66b2",
+  "opentelemetry-instrumentation-psycopg==0.66b2",
+  "opentelemetry-instrumentation-redis==0.66b2",
+  "opentelemetry-instrumentation-botocore==0.66b2",
+  # Modules optionnels : n'agissent que si leur variable d'environnement est définie
+  "psycopg[binary]==3.3.9",   # module postgres  (DATABASE_URL)
+  "redis==8.1.0",             # module valkey    (VALKEY_URL)
+  "boto3==1.44.3",            # module s3        (S3_ENDPOINT, S3_BUCKET)
+  "sentry-sdk[fastapi]==2.75.0",  # suivi d'erreurs (SENTRY_DSN)
+]
+
+[dependency-groups]
+dev = [
+  "pytest==9.2.0",
+  "httpx==0.28.1",
+  "ruff==0.17.5",
+  "pyyaml==6.0.3",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S"]
+ignore = ["S101"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

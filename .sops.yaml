@@ -1,0 +1,8 @@
+# Secrets de l'application, chiffrés pour les clusters de la plateforme (ADR-0007 du dépôt infra).
+# Destinataires : clé « local » (k3s du PC). Ajouter la clé « hetzner » à sa création, puis
+#   sops updatekeys deploy/overlays/*/secrets/*.sops.yaml
+creation_rules:
+  - path_regex: ^deploy/overlays/[^/]+/secrets/.*\.sops\.ya?ml$
+    encrypted_regex: ^(data|stringData)$
+    age: >-
+      age18enzprddd0at7gzk4929j4x093u3z52lvmcjv308yua2clfsh5zqx46utu
