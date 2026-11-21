@@ -1,5 +1,6 @@
 # CI de l'application : délègue au workflow réutilisable de la plateforme.
-# Secrets d'organisation requis : PLATFORM_CI_CLIENT_ID, PLATFORM_CI_APP_PRIVATE_KEY (GitHub App platform-ci).
+# Secrets du dépôt requis : PLATFORM_CI_CLIENT_ID, PLATFORM_CI_APP_PRIVATE_KEY (GitHub App clemuscle-platform-ci).
+# Au niveau du dépôt : le plan Free ne transmet pas les secrets d'organisation aux dépôts privés.
 name: ci
 on:
   pull_request:

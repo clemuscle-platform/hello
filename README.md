@@ -5,6 +5,7 @@ Application de la plateforme `clemuscle-platform`, créée depuis le modèle **a
 ## Démarrer une nouvelle application
 1. Sur GitHub : *Use this template*, puis créer le dépôt `clemuscle-platform/<nom>` (privé).
 2. Initialiser le dépôt : `scripts/init.sh <nom> web|api|static`, puis `make setup test` et un commit.
+   Puis définir les deux secrets de la CI **sur le dépôt** (le plan Free ne transmet pas les secrets d'organisation aux dépôts privés) : `gh secret set PLATFORM_CI_CLIENT_ID -R clemuscle-platform/<nom>` et `gh secret set PLATFORM_CI_APP_PRIVATE_KEY -R clemuscle-platform/<nom> < platform-ci-app.pem` (GitHub App `clemuscle-platform-ci`, installée sur `infra` seulement).
 3. Activer les modules voulus dans `platform.yaml`, puis lancer `make modules`.
 4. Déclarer l'application dans le dépôt `infra` : copier `cluster/apps/hello.yaml` en `cluster/apps/<nom>.yaml` et l'ajouter à `cluster/apps/kustomization.yaml`. Cette PR demande une validation humaine (runbook *ajout d'une application*).
 5. Pousser sur `main` : la CI publie l'artefact `main`, et Flux déploie le staging.
