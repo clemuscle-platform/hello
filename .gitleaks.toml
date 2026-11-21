@@ -1,0 +1,8 @@
+# Règles par défaut de Gitleaks ; seuls les dossiers qui ne sont pas le code de l'application sont exclus.
+# .infra : dépôt infra récupéré par la CI de la plateforme (contient de faux secrets de test).
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Dossiers hors application"
+paths = ['''^\.infra/''', '''^out/''']

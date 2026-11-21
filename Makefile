@@ -35,9 +35,9 @@ validate: ## Rend deploy/ (3 niveaux × 3 configurations), kubeconform, règles 
 
 scan: ## Gitleaks, Semgrep, Trivy (fichiers)
 	gitleaks dir . --no-banner --redact
-	semgrep scan --config p/default --config p/python --error --quiet --metrics=off --exclude out --exclude .venv
+	semgrep scan --config p/default --config p/python --error --quiet --metrics=off --exclude out --exclude .venv --exclude .infra
 	trivy fs --quiet --scanners vuln,secret,misconfig --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
-	  --skip-dirs out --skip-dirs .venv .
+	  --skip-dirs out --skip-dirs .venv --skip-dirs .infra .
 
 build: ## Construit l'image locale (sans la publier)
 	docker build -t $(APP):dev $(if $(filter static,$(shell sed -n 's/^kind: *//p' platform.yaml)),-f Dockerfile.static,) .
