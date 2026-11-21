@@ -61,7 +61,9 @@ for v in "${!VARIANTS[@]}"; do
 done
 
 echo "== kubeconform"
-kubeconform -strict -summary -kubernetes-version "$K8S_VERSION" -cache "${XDG_CACHE_HOME:-$HOME/.cache}" \
+KC_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/kubeconform"
+mkdir -p "$KC_CACHE"  # absent sur un runner neuf : kubeconform échoue sinon
+kubeconform -strict -summary -kubernetes-version "$K8S_VERSION" -cache "$KC_CACHE" \
   -schema-location default \
   -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
   -skip ServiceLevelObjectives \
