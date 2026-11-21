@@ -4,7 +4,8 @@ kind: Kustomization
 resources:
   - ../../base
 # BEGIN modules (géré par scripts/modules.py)
-components: []
+components:
+  - ../../components/postgres-backup
 # END modules
 patches:
   - target:
