@@ -30,6 +30,8 @@ dev = [
 
 [tool.ruff]
 line-length = 120
+# .infra : dépôt infra récupéré par la CI de la plateforme (pas le code de l'application).
+extend-exclude = [".infra", "out"]
 target-version = "py314"
 
 [tool.ruff.lint]

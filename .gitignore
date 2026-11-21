@@ -9,3 +9,6 @@ out/
 *.dec.yaml
 keys.txt
 *.agekey
+
+# Dépôt infra récupéré par la CI
+.infra/
