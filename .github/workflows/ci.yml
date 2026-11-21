@@ -1,5 +1,5 @@
 # CI de l'application : délègue au workflow réutilisable de la plateforme.
-# Secrets d'organisation requis : PLATFORM_CI_APP_ID, PLATFORM_CI_APP_PRIVATE_KEY (GitHub App platform-ci).
+# Secrets d'organisation requis : PLATFORM_CI_CLIENT_ID, PLATFORM_CI_APP_PRIVATE_KEY (GitHub App platform-ci).
 name: ci
 on:
   pull_request:
@@ -25,5 +25,5 @@ jobs:
       id-token: write
       pull-requests: write
     secrets:
-      PLATFORM_CI_APP_ID: ${{ secrets.PLATFORM_CI_APP_ID }}
+      PLATFORM_CI_CLIENT_ID: ${{ secrets.PLATFORM_CI_CLIENT_ID }}
       PLATFORM_CI_APP_PRIVATE_KEY: ${{ secrets.PLATFORM_CI_APP_PRIVATE_KEY }}
