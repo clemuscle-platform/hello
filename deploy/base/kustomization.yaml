@@ -32,5 +32,6 @@ images:
     newName: ghcr.io/clemuscle-platform/hello
     newTag: dev
 # BEGIN modules (géré par scripts/modules.py)
-components: []
+components:
+  - ../components/postgres
 # END modules

@@ -5,7 +5,8 @@ resources:
   - ../../base
   - pdb.yaml
 # BEGIN modules (géré par scripts/modules.py)
-components: []
+components:
+  - ../../components/postgres-backup
 # END modules
 configMapGenerator:
   - name: app-config

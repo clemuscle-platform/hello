@@ -4,7 +4,7 @@ name: hello
 # web : pages + API ; api : API JSON seule ; static : site statique (Dockerfile.static)
 kind: web
 modules:
-  postgres: false   # base CloudNativePG + sauvegardes (staging, prod)
+  postgres: true    # base CloudNativePG + sauvegardes (staging, prod)
   valkey: false     # cache / file de messages en mémoire
   worker: false     # processus de fond (requiert valkey)
   cron: false       # tâches planifiées
